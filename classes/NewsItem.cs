@@ -1,6 +1,6 @@
-namespace DataStructureProject.classes;
+namespace DataStructureProject;
 
-public class NewsItem : IComparable
+public class NewsItem : IComparable<NewsItem>
 {
     public int Id { get; set; }
     public long Time { get; set; }
@@ -19,15 +19,16 @@ public class NewsItem : IComparable
 
     public override string ToString()
     {
-        return $"({Time.ToString().PadLeft(10)}) / {Hits.ToString().PadLeft(2)} hits / id: {Id.ToString().PadLeft(2)} / {Content.Substring(0, Content.Length)}...";
+        DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(Time);
+        return $"{dateTimeOffset.ToString("yyyy MMMM dd"),10} | " +
+               $"{Hits.ToString(),2} hits | " +
+               $"id{Id.ToString(),2} | " +
+               $"{Content[..20]}... | " +
+               $"{String.Join(" / ", Keywords)} |";
     }
-
-    public int CompareTo(object? obj)
+    
+    public int CompareTo(NewsItem? that)
     {
-        if(Hits > ((NewsItem)obj).Hits)
-            return 1;
-        if(Hits < ((NewsItem)obj).Hits)
-            return -1;
-        return 0;
+        return that != null ? this.Time.CompareTo(that.Time) : 1;
     }
 }

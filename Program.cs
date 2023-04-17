@@ -56,8 +56,7 @@ while (true)
 {
     // show the menu
     Console.WriteLine("--------------------\n" + 
-                      "Enter a command:\n" +
-                      "(case insensitive)\n\n" + 
+                      "Available commands (case insensitive):\n" + 
                       "> SHOW <recent|trending> [--keywords <keyword>]... [--time <epoch time>]\n" +
                       "> SELECT <id>\n" +
                       "> BACK\n" +
@@ -65,7 +64,8 @@ while (true)
                       "> EXIT \n");
 
     // read the user input
-    Console.Write("> ");
+    Console.Write("Enter your command:\n" +
+                  "> ");
     string? command = Console.ReadLine();
     command = String.IsNullOrWhiteSpace(command) ? "" : command;
     Console.Clear();
@@ -111,7 +111,6 @@ while (true)
 
             // extract type of news to show
             Match matchType = Regex.Match(cmd, @"^SHOW (recent|trending)", RegexOptions.IgnoreCase);
-                    
             // filter and show the news
             if (matchType.Success)
             {
@@ -120,12 +119,13 @@ while (true)
                 {
                     long? epochLastDay = (long)(epoch - 86400);
                     newsFiltered = newsRecent
-                        .Where(obj => obj.Time > epochLastDay)
+                        .Where(obj => obj.Time > epochLastDay && obj.Time <= epoch)
                         .ToList();
                     if(keywordsFilter != null)
                         newsFiltered = newsFiltered
                             .Where(obj => obj.Keywords.Intersect(keywordsFilter).Any())
                             .ToList();
+                    newsFiltered = newsFiltered.Take(10).ToList();
                     newsFiltered.ForEach(n => Console.WriteLine(n));
                 }
                 else if (type == "trending")
@@ -145,6 +145,7 @@ while (true)
                             .Where(obj => obj.Keywords.Intersect(keywordsFilter).Any())
                             .ToList();
                     // display the news
+                    newsFiltered = newsFiltered.Take(10).ToList();
                     newsFiltered.ForEach(obj => Console.WriteLine(obj));
                 }
             }
@@ -197,14 +198,16 @@ while (true)
             DateTimeOffset currentDate = DateTimeOffset.FromUnixTimeSeconds(epoch);
             DateTimeOffset newDate = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(input));
             
-            Console.WriteLine($"Setting time from " +
-                              $"{currentDate.ToString("yyyy MMMM dd")} to " +
-                              $"{newDate.ToString("yyyy MMMM dd")}.\n");
+            Console.WriteLine($"--------------------\n" +
+                              $"{currentDate.ToString("yyyy MMMM dd")}\n" +
+                              $"  ↓ \n" +
+                              $"{newDate.ToString("yyyy MMMM dd")}.");
             epoch = long.Parse(input);
             break;
         case string cmd when Regex.IsMatch(cmd, exitPattern, RegexOptions.IgnoreCase):
             Console.Clear();
             Console.WriteLine("Bye!");
+            Environment.Exit(0);
             break;
         default:
             Console.WriteLine("Invalid option");

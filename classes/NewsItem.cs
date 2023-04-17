@@ -22,7 +22,7 @@ public class NewsItem : IComparable<NewsItem>
         DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(Time);
         return $"{dateTimeOffset.ToString("yyyy MMMM dd"),10} | " +
                $"{Hits.ToString(),2} hits | " +
-               $"id{Id.ToString(),2} | " +
+               $"id {Id.ToString(),2} | " +
                $"{Content[..20]}... | " +
                $"{String.Join(" / ", Keywords)} |";
     }
